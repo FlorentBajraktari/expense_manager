@@ -1,0 +1,7 @@
+kivy==2.1.0
+kivymd==1.1.1
+pandas==1.5.3
+xlsxwriter==3.0.3
+fpdf==1.7.2
+sqlite3  # për zhvillimin në Python standard, por mund të mos duhet të instalohet nëpërmjet pip
+matplotlib==3.7.1
