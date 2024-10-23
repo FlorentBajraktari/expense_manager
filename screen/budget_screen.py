@@ -9,6 +9,7 @@ class BudgetScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.build_layout()
+        self.dialog = None
 
     def build_layout(self):
         layout = BoxLayout(orientation='vertical', padding=10, spacing=10)

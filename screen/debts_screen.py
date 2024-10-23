@@ -1,17 +1,17 @@
 from kivy.uix.screenmanager import Screen
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDRaisedButton
-from kivymd.uix.label import MDLabel
 from kivymd.uix.textfield import MDTextField
-from models.debts import add_debt, get_debts, make_debt_payment
+from kivymd.uix.label import MDLabel
+from kivymd.toast import toast
 
 
-class DebtsScreen(Screen):  # Sigurohu që të trashëgojë nga Screen
+class DebtsScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         # Krijo një layout të brendshëm
-        layout = MDBoxLayout(orientation='vertical')
+        layout = MDBoxLayout(orientation='vertical', padding=20, spacing=10)
 
         self.debtor_input = MDTextField(
             hint_text="Debitori", size_hint_x=None, width=300)
@@ -24,6 +24,11 @@ class DebtsScreen(Screen):  # Sigurohu që të trashëgojë nga Screen
         self.add_button = MDRaisedButton(
             text="Shto Borxh", on_release=self.add_debt)
 
+        # Shto butonin "Back" për t'u kthyer në ekranin e mëparshëm
+        back_button = MDRaisedButton(
+            text="Back", on_release=self.go_back_to_dashboard)
+
+        # Shto të gjitha elementët në layout
         layout.add_widget(MDLabel(text="Menaxhimi i Borxheve",
                           font_style="H4", halign="center"))
         layout.add_widget(self.debtor_input)
@@ -31,20 +36,40 @@ class DebtsScreen(Screen):  # Sigurohu që të trashëgojë nga Screen
         layout.add_widget(self.interest_input)
         layout.add_widget(self.due_date_input)
         layout.add_widget(self.add_button)
+        layout.add_widget(back_button)  # Shto butonin "Back"
 
         self.add_widget(layout)
 
-    def add_debt(self, instance):
+    def add_debt(self, *args):
         debtor = self.debtor_input.text
-        amount = float(self.amount_input.text)
-        interest_rate = float(self.interest_input.text)
+        amount = self.amount_input.text
+        interest = self.interest_input.text
         due_date = self.due_date_input.text
-        add_debt(debtor, amount, interest_rate, due_date)
-        self.show_debts()
 
-    def show_debts(self):
-        debts = get_debts()
-        for debt in debts:
-            debtor, amount, interest_rate, due_date = debt[1], debt[2], debt[3], debt[4]
-            self.add_widget(MDLabel(
-                text=f"{debtor}: ${amount}, Interest: {interest_rate}%, Due: {due_date}", halign="left"))
+        # Kontrollo që të gjitha fushat janë plotësuar
+        if not debtor or not amount or not interest or not due_date:
+            toast("Ju lutem plotësoni të gjitha fushat")
+            return
+
+        # Kontrollo që shuma dhe norma e interesit janë numra validë
+        try:
+            amount = float(amount)
+            interest = float(interest)
+        except ValueError:
+            toast("Shuma dhe norma e interesit duhet të jenë numra validë")
+            return
+
+        # Për momentin, thjesht printo borxhin e ri dhe pastaj pastro fushat
+        print(
+            f"Shtuar borxhi: Debitori={debtor}, Shuma={amount}, Norma e Interesit={interest}, Data e Afatit={due_date}")
+        toast("Borxhi u shtua me sukses!")
+
+        # Pastro fushat e tekstit pasi të shtohet borxhi
+        self.debtor_input.text = ""
+        self.amount_input.text = ""
+        self.interest_input.text = ""
+        self.due_date_input.text = ""
+
+    def go_back_to_dashboard(self, *args):
+        # Kalo në ekranin e dashboard-it
+        self.manager.current = "dashboard"
