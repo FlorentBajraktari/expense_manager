@@ -1,28 +1,36 @@
-from .database import connect_db
+import sqlite3
 
 
-def add_budget(user_id, category, limit_amount):
-    conn = connect_db()
+def get_budgets():
+    conn = sqlite3.connect('expense_manager.db')
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO budgets (user_id, category, limit_amount) VALUES (?, ?, ?)",
-                   (user_id, category, limit_amount))
+    cursor.execute("SELECT * FROM budgets")
+    result = cursor.fetchall()
+    conn.close()
+    return result
+
+
+def add_budget(category, amount, month):
+    conn = sqlite3.connect('expense_manager.db')
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO budgets (category, amount, month) VALUES (?, ?, ?)", (category, amount, month))
     conn.commit()
     conn.close()
 
 
-def get_budgets():
-    conn = connect_db()
+def update_budget(id, category, amount, month):
+    conn = sqlite3.connect('expense_manager.db')
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM budgets')
-    budgets = cursor.fetchall()
+    cursor.execute("UPDATE budgets SET category=?, amount=?, month=? WHERE id=?",
+                   (category, amount, month, id))
+    conn.commit()
     conn.close()
-    return budgets
 
 
-def update_budget(category, new_limit):
-    conn = connect_db()
+def delete_budget(id):
+    conn = sqlite3.connect('expense_manager.db')
     cursor = conn.cursor()
-    cursor.execute('UPDATE budgets SET limit=? WHERE category=?',
-                   (new_limit, category))
+    cursor.execute("DELETE FROM budgets WHERE id=?", (id,))
     conn.commit()
     conn.close()

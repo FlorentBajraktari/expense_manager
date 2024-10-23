@@ -1,39 +1,72 @@
-from kivymd.uix.boxlayout import MDBoxLayout
+from .budget_forms import AddBudgetForm, UpdateBudgetForm
+from kivymd.uix.boxlayout import BoxLayout
 from kivymd.uix.button import MDRaisedButton
-from kivymd.uix.label import MDLabel
-from kivymd.uix.textfield import MDTextField
-from models.budget import add_budget, get_budgets, update_budget
+from kivymd.uix.dialog import MDDialog
+from kivy.uix.screenmanager import Screen
 
 
-class BudgetScreen(MDBoxLayout):
+class BudgetScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.orientation = 'vertical'
+        self.build_layout()
 
-        self.category_input = MDTextField(
-            hint_text="Kategoria e Buxhetit", size_hint_x=None, width=300)
-        self.limit_input = MDTextField(
-            hint_text="Limiti i Buxhetit", size_hint_x=None, width=300)
-        self.add_button = MDRaisedButton(
-            text="Shto Buxhet", on_release=self.add_budget)
+    def build_layout(self):
+        layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
-        self.add_widget(MDLabel(text="Menaxhimi i Buxhetit",
-                        font_style="H4", halign="center"))
-        self.add_widget(self.category_input)
-        self.add_widget(self.limit_input)
-        self.add_widget(self.add_button)
+        # Butoni për të shtuar buxhet të ri
+        add_button = MDRaisedButton(
+            text="Shto Buxhet", on_release=self.show_add_budget_dialog)
 
-        self.show_budgets()
+        # Butoni për të përditësuar buxhetin
+        update_button = MDRaisedButton(
+            text="Përditëso Buxhetin", on_release=self.show_update_budget_dialog)
 
-    def add_budget(self, instance):
-        category = self.category_input.text
-        limit = float(self.limit_input.text)
-        add_budget(category, limit)
-        self.show_budgets()
+        # Butoni për të fshirë buxhetin
+        delete_button = MDRaisedButton(
+            text="Fshij Buxhetin", on_release=self.show_delete_budget_dialog)
 
-    def show_budgets(self):
-        budgets = get_budgets()
-        for budget in budgets:
-            category, limit = budget[1], budget[2]
-            self.add_widget(
-                MDLabel(text=f"{category}: ${limit}", halign="left"))
+        # Butoni për t'u kthyer
+        back_button = MDRaisedButton(
+            text="Back", on_release=self.go_back_to_dashboard)
+
+        layout.add_widget(add_button)
+        layout.add_widget(update_button)
+        layout.add_widget(delete_button)
+        layout.add_widget(back_button)
+
+        self.add_widget(layout)
+
+    # Definoni metodën 'go_back_to_dashboard'
+    def go_back_to_dashboard(self, *args):
+        self.manager.current = 'dashboard'
+
+    def show_add_budget_dialog(self, *args):
+        self.dialog = MDDialog(
+            title="Shto Buxhet të Ri",
+            type="custom",
+            content_cls=AddBudgetForm(),
+            buttons=[
+                MDRaisedButton(text="Shto", on_release=self.add_budget),
+                MDRaisedButton(
+                    text="Mbyll", on_release=lambda x: self.dialog.dismiss())
+            ]
+        )
+        self.dialog.open()
+
+    def show_update_budget_dialog(self, *args):
+        self.dialog = MDDialog(
+            title="Përditëso Buxhetin",
+            type="custom",
+            content_cls=UpdateBudgetForm(),
+            buttons=[
+                MDRaisedButton(text="Përditëso",
+                               on_release=self.update_budget),
+                MDRaisedButton(
+                    text="Mbyll", on_release=lambda x: self.dialog.dismiss())
+            ]
+        )
+        self.dialog.open()
+
+    def show_delete_budget_dialog(self, *args):
+        # Këtu shtoni funksionalitetin për të fshirë një buxhet
+        pass

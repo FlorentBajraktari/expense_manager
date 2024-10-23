@@ -161,3 +161,93 @@ def create_tables():
 
     conn.commit()
     conn.close()
+
+
+def create_tables():
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    # Krijo tabelën për kursimet automatike nëse nuk ekziston
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS auto_savings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        description TEXT NOT NULL,
+        amount REAL NOT NULL,
+        frequency TEXT NOT NULL
+    )
+    ''')
+
+    # Shto edhe tabela të tjera të nevojshme
+    # ...
+
+    conn.commit()
+    conn.close()
+
+
+def create_tables():
+    conn = connect_db()
+    cursor = conn.cursor()
+
+
+def create_tables():
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    # Krijo tabelën për kursimet automatike nëse nuk ekziston
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS auto_savings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        description TEXT NOT NULL,
+        amount REAL NOT NULL,
+        frequency TEXT NOT NULL
+    )
+    ''')
+
+    # Krijo tabelën për borxhet nëse nuk ekziston
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS debts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        total_amount REAL NOT NULL,
+        remaining_amount REAL NOT NULL
+    )
+    ''')
+
+    # Shto edhe tabela të tjera të nevojshme për aplikacionin
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS bills (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        amount REAL NOT NULL,
+        due_date TEXT NOT NULL,
+        status TEXT NOT NULL
+    )
+    ''')
+
+    # Shto edhe tabelat tjera që duhen për aplikacionin
+    conn.commit()
+    conn.close()
+
+
+def create_tables():
+    conn = sqlite3.connect('expense_manager.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS budgets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            amount REAL NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+
+def verify_user_credentials(username, password):
+    conn = sqlite3.connect('expense_manager.db')
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT * FROM users WHERE username=? AND password=?", (username, password))
+    user = cursor.fetchone()
+    conn.close()
+    return user is not None

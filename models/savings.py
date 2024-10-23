@@ -1,28 +1,48 @@
-from .database import connect_db
+from models.database import connect_db
 
 
-def add_savings_goal(goal, target_amount):
+def get_auto_savings():
+    """
+    Merr të gjitha kursimet automatike nga baza e të dhënave.
+    """
     conn = connect_db()
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO savings (goal, target_amount, current_amount) VALUES (?, ?, ?)',
-                   (goal, target_amount, 0))
+    cursor.execute("SELECT * FROM auto_savings")
+    result = cursor.fetchall()
+    conn.close()
+    return result
+
+
+def add_saving_goal(description, amount, frequency):
+    """
+    Shton një kursim të ri automatik në bazën e të dhënave.
+    """
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO auto_savings (description, amount, frequency) VALUES (?, ?, ?)",
+                   (description, amount, frequency))
     conn.commit()
     conn.close()
 
 
-def update_savings_amount(savings_id, amount):
+def update_saving_goal(saving_id, description, amount, frequency):
+    """
+    Përditëson një kursim automatik të caktuar.
+    """
     conn = connect_db()
     cursor = conn.cursor()
-    cursor.execute(
-        'UPDATE savings SET current_amount = current_amount + ? WHERE id = ?', (amount, savings_id))
+    cursor.execute("UPDATE auto_savings SET description = ?, amount = ?, frequency = ? WHERE id = ?",
+                   (description, amount, frequency, saving_id))
     conn.commit()
     conn.close()
 
 
-def get_savings_goals():
+def delete_saving_goal(saving_id):
+    """
+    Fshin një kursim automatik të caktuar.
+    """
     conn = connect_db()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM savings')
-    savings = cursor.fetchall()
+    cursor.execute("DELETE FROM auto_savings WHERE id = ?", (saving_id,))
+    conn.commit()
     conn.close()
-    return savings

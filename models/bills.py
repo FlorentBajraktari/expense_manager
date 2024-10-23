@@ -1,31 +1,16 @@
 from models.database import connect_db
 
 
-def add_new_bill(name, amount, due_date, status, recurring):
+def get_unpaid_bills():
+    """
+    Merr të gjitha faturat që janë të papaguara nga baza e të dhënave.
+    """
     conn = connect_db()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO bills (name, amount, due_date, status, recurring) VALUES (?, ?, ?, ?, ?)",
-                   (name, amount, due_date, status, recurring))
-    conn.commit()
-    conn.close()
-
-
-def get_bills():
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM bills")
+    cursor.execute("SELECT * FROM bills WHERE status = 'unpaid'")
     result = cursor.fetchall()
     conn.close()
     return result
-
-
-def update_bill_status(bill_id, status):
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute("UPDATE bills SET status = ? WHERE id = ?",
-                   (status, bill_id))
-    conn.commit()
-    conn.close()
 
 
 def get_paid_bills():
@@ -37,10 +22,27 @@ def get_paid_bills():
     return result
 
 
-def get_unpaid_bills():
+def add_bill(name, amount, due_date, status):
     conn = connect_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM bills WHERE status = 'unpaid'")
-    result = cursor.fetchall()
+    cursor.execute("INSERT INTO bills (name, amount, due_date, status) VALUES (?, ?, ?, ?)",
+                   (name, amount, due_date, status))
+    conn.commit()
     conn.close()
-    return result
+
+
+def update_bill(bill_id, name, amount, due_date, status):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE bills SET name = ?, amount = ?, due_date = ?, status = ? WHERE id = ?",
+                   (name, amount, due_date, status, bill_id))
+    conn.commit()
+    conn.close()
+
+
+def delete_bill(bill_id):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM bills WHERE id = ?", (bill_id,))
+    conn.commit()
+    conn.close()
